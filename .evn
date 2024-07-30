@@ -1,1 +1,5 @@
-PORT= 3000
+   PORT=3000
+   MONGODB_USER=kondratenko666olga
+   MONGODB_PASSWORD=2O3V9KfXnaQijcvB
+   MONGODB_URL=cluster0.3yu6285.mongodb.net
+   MONGODB_DB=student
