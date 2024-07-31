@@ -1,16 +1,20 @@
 import mongoose from 'mongoose';
+import {env} from '../../.env';
 
-async function initMongoConnection() {
-  const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_URL, MONGODB_DB } = process.env;
 
-  const connectionString = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DB}?retryWrites=true&w=majority`;
+export const initMongoConnection = async () => {
+    try {
+        const user = env('MONGODB_USER');
+        const pwd = env('MONGODB_PASSWORD');
+        const url = env('MONGODB_URL');
+        const db = env('MONGODB_DB');
 
-  try {
-    await mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-    console.log('Mongo connection successfully established!');
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error.message);
-  }
-}
+        await mongoose.connect(
+            `mongodb+srv://${user}:${pwd}@${url}/${db}?retryWrites=true&w=majority`,
+          );
+          console.log('Mongo connection successfully established!');
 
-export default initMongoConnection;
+    } catch (error) {
+        console.log('Error connecting to MongoDB:', error.message);
+    }
+};
