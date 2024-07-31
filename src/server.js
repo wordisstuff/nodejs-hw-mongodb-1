@@ -14,13 +14,13 @@ export function setupServer() {
   app.get('/contacts', getAllContacts);
   app.get('/contacts/:contactId', getContactById);
 
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+
   app.use((req, res, next) => {
     res.status(404).json({ message: 'Not found' });
   });
-
-  app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
 
   app.use((err, req, res, next) => {
     res.status(500).json({
