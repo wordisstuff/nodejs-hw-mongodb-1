@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import pino from 'express-pino-logger';
-import { getAllContacts, getContactById } from './controllers/contactsController.js';
+import { getAllContacts, getContactById } from './services/contacts.js';
+
+import { env } from './utils/env.js';
+const PORT = Number(env('PORT', '3000'));
 
 function setupServer() {
   const app = express();
@@ -15,7 +18,13 @@ function setupServer() {
     res.status(404).json({ message: 'Not found' });
   });
 
-  const PORT = process.env.PORT || 3000;
+  app.use((err, req, res, next) => {
+    res.status(500).json({
+      message: 'Something went wrong',
+      error: err.message,
+    });
+  });
+
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });

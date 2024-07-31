@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import {env} from '../../.env';
+import {env} from '../utils/env.js';
 
 
-export const initMongoConnection = async () => {
+const initMongoConnection = async () => {
     try {
         const user = env('MONGODB_USER');
         const pwd = env('MONGODB_PASSWORD');
@@ -18,3 +18,5 @@ export const initMongoConnection = async () => {
         console.log('Error connecting to MongoDB:', error.message);
     }
 };
+
+export default initMongoConnection;
