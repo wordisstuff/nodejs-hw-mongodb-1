@@ -6,7 +6,7 @@ import { getAllContacts, getContactById } from './services/contacts.js';
 import { env } from './utils/env.js';
 const PORT = Number(env('PORT', '3000'));
 
-function setupServer() {
+export function setupServer() {
   const app = express();
   app.use(cors());
   app.use(pino());
@@ -30,4 +30,4 @@ function setupServer() {
   });
 }
 
-export default setupServer;
+// export default setupServer;
