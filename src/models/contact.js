@@ -44,9 +44,11 @@ const contactSchema = new Schema(
       enum: ['work', 'home', 'personal'],
       default: 'personal',
     },
+    createdAt:{Date},
+    updatedAt :{Date},
   },
   {
     timestamps: true,
   },
 );
-export const ContactCollection = model('Contact', contactSchema);
+export const ContactCollection = model('contacts', contactSchema);
