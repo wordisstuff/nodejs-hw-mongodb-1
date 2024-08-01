@@ -19,4 +19,3 @@ export const initMongoConnection = async () => {
     }
 };
 
-// export default initMongoConnection;
