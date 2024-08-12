@@ -1,11 +1,3 @@
-// Створіть модель User з такими полями:
-
-// name - string, required
-// email - string, email, unique, required
-// password - string, required
-// createdAt - дата створення
-// updatedAt - дата оновлення
-
 import { model, Schema } from "mongoose";
 
 const userSchema = new Schema(
@@ -31,5 +23,11 @@ const userSchema = new Schema(
         timestamps: true,
       },
 );
+
+userSchema.methods.toJSON = function () {
+    const obj = this.toObject();
+    delete obj.password;
+    return obj;
+  };
 
 export const UserCollection = model('user', userSchema);

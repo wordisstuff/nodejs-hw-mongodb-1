@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import createHttpError from 'http-errors';
-import UserCollection from '../models/user.js'; // Ваша модель користувача
+import UserCollection from '../models/user.js';
 
 export const register = async (req, res, next) => {
   try {

@@ -1,11 +1,3 @@
-// Створіть модель Session з такими полями:
-
-// userId - string, required
-// accessToken - string, required
-// refreshToken - string, required
-// accessTokenValidUntil - Date, required
-// refreshTokenValidUntil - Date, required
-
 import {model, Schema} from 'mongoose';
 
 const sessionSchema = new Schema(
