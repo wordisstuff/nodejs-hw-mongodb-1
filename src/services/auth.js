@@ -1,5 +1,9 @@
 import { UserCollection } from "../models/user.js";
 
-export const registerUser = async (payload) => {
-    return await UserCollection.create(payload);
-  };
+export const findUserByEmail = async (email) => {
+  return UserCollection.findOne({ email });
+};
+
+export const createUser = async (userData) => {
+  return UserCollection.create(userData);
+};
