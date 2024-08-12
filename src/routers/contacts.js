@@ -1,4 +1,4 @@
-import express from 'express';
+import {Router} from 'express';
 import {
   getAllContacts,
   getContactById,
@@ -11,7 +11,7 @@ import { validateBody } from '../middlewares/validateBody.js';
 import { isValidId } from '../middlewares/isValidId.js';
 import { contactSchema, updateContactSchema } from '../validation/contactSchemas.js';
 
-const router = express.Router();
+const router = Router();
 
 router.get('/', ctrlWrapper(getAllContacts));
 router.get('/:contactId', isValidId, ctrlWrapper(getContactById));
