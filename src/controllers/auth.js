@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
-import UserCollection from '../models/user.js';
+import {UserCollection} from '../models/user.js';
 
 export const register = async (req, res, next) => {
   try {
