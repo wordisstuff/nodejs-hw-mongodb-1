@@ -1,7 +1,8 @@
 import { UserCollection } from "../models/user.js";
 import { SessionCollection } from '../models/session.js';
 import { randomBytes } from 'crypto';
-// import createHttpError from 'http-errors';
+import createHttpError from 'http-errors';
+
 // Константи для часу життя токенів
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 const ONE_DAY = 24 * 60 * 60 * 1000;
@@ -35,4 +36,26 @@ export const createSession = async (userId) => {
 // Функція для видалення старої сесії за userId
 export const deleteSessionByUserId = async (userId) => {
   await SessionCollection.deleteOne({ userId });
+};
+
+// Функція для оновлення сесії
+export const refreshUsersSession = async ({ refreshToken }) => {
+  const session = await SessionCollection.findOne({ refreshToken });
+
+  if (!session) {
+    throw createHttpError(401, 'Session not found');
+  }
+
+  const isSessionTokenExpired =
+    new Date() > new Date(session.refreshTokenValidUntil);
+
+  if (isSessionTokenExpired) {
+    throw createHttpError(401, 'Session token expired');
+  }
+
+  const newSession = await createSession(session.userId);
+
+  await SessionCollection.deleteOne({ _id: session._id });
+
+  return newSession;
 };

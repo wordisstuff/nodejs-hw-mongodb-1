@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 
 import {UserCollection} from '../models/user.js';
 // import {SessionCollection} from "../models/session.js";
-import { createSession, deleteSessionByUserId } from '../services/auth.js';
+import { createSession, deleteSessionByUserId, refreshUsersSession } from '../services/auth.js';
 
 
 // Контролер для реєстрації
@@ -82,5 +82,57 @@ export const login = async (req, res, next) => {
     });
   } catch (error) {
     next(error); // Передаємо помилку для подальшої обробки middleware
+  }
+};
+
+// Контролер для оновлення сесії
+export const refreshSession = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies;
+
+    // Перевірка, чи наявний рефреш токен
+    if (!refreshToken) {
+      throw createHttpError(401, 'Missing refresh token');
+    }
+
+    // Оновлення сесії користувача на основі рефреш токену
+    const newSession = await refreshUsersSession({ refreshToken });
+
+    res.cookie('refreshToken', newSession.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: newSession.refreshTokenValidUntil - Date.now(),
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully refreshed a session!',
+      data: {
+        accessToken: newSession.accessToken,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Контролер для логауту користувача
+export const logout = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies;
+
+    // Видалення сесії користувача
+    if (refreshToken) {
+      await deleteSessionByUserId(refreshToken);
+    }
+
+    // Очистка cookie з рефреш токеном
+    res.clearCookie('refreshToken');
+
+    // Відправка відповіді зі статусом 204
+    res.status(204).send();
+  } catch (error) {
+    next(error);
   }
 };
