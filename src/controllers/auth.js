@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 
 import {UserCollection} from '../models/user.js';
 // import {SessionCollection} from "../models/session.js";
-import { createSession, deleteSessionByUserId, refreshUsersSession } from '../services/auth.js';
+import { createSession, deleteSessionById, refreshUsersSession } from '../services/auth.js';
 
 
 // Контролер для реєстрації
@@ -59,17 +59,21 @@ export const login = async (req, res, next) => {
     }
 
     // Видаляємо стару сесію, якщо вона існує
-    await deleteSessionByUserId(user._id);
+    await deleteSessionById(user._id);
 
     // Створюємо нову сесію для користувача
     const session = await createSession(user._id);
 
     // Встановлюємо refreshToken в cookies
-    res.cookie('refreshToken', session.refreshToken, {
+    res.cookie('refreshToken', session.session.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: session.refreshTokenValidUntil - Date.now(), // Встановлюємо час життя cookie
+      maxAge: session.session.refreshTokenValidUntil - Date.now(), // Встановлюємо час життя cookie
+    });
+
+    //Встановлюємо sessionId
+    res.cookie('sessionId', session.session._id, {
+      httpOnly: true,
+      maxAge: session.session.refreshTokenValidUntil - Date.now(),
     });
 
     // Відправляємо відповідь з новим accessToken
@@ -77,7 +81,7 @@ export const login = async (req, res, next) => {
       status: 200,
       message: 'Successfully logged in an user!',
       data: {
-        accessToken: session.accessToken,
+        accessToken: session.session.accessToken,
       },
     });
   } catch (error) {
@@ -88,7 +92,7 @@ export const login = async (req, res, next) => {
 // Контролер для оновлення сесії
 export const refreshSession = async (req, res, next) => {
   try {
-    const { refreshToken } = req.cookies;
+    const refreshToken = req.cookies;
 
     // Перевірка, чи наявний рефреш токен
     if (!refreshToken) {
@@ -96,13 +100,17 @@ export const refreshSession = async (req, res, next) => {
     }
 
     // Оновлення сесії користувача на основі рефреш токену
-    const newSession = await refreshUsersSession({ refreshToken });
+    const newSession = await refreshUsersSession( req.cookies );
 
     res.cookie('refreshToken', newSession.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: newSession.refreshTokenValidUntil - Date.now(),
+      maxAge: newSession.session.refreshTokenValidUntil - Date.now(),
+    });
+
+    //Встановлюємо sessionId
+    res.cookie('sessionId', newSession.session._id, {
+      httpOnly: true,
+      maxAge: newSession.session.refreshTokenValidUntil - Date.now(),
     });
 
     res.status(200).json({
@@ -120,11 +128,11 @@ export const refreshSession = async (req, res, next) => {
 // Контролер для логауту користувача
 export const logout = async (req, res, next) => {
   try {
-    const { refreshToken } = req.cookies;
+    const cookies = req.cookies;
 
     // Видалення сесії користувача
-    if (refreshToken) {
-      await deleteSessionByUserId(refreshToken);
+    if (cookies) {
+      await deleteSessionById(cookies.sessionId);
     }
 
     // Очистка cookie з рефреш токеном

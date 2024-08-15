@@ -30,17 +30,17 @@ export const createSession = async (userId) => {
     refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
   });
 
-  return { session};
+  return { session };
 };
 
 // Функція для видалення старої сесії за userId
-export const deleteSessionByUserId = async (userId) => {
-  await SessionCollection.deleteOne({ userId });
+export const deleteSessionById = async (id) => {
+  await SessionCollection.deleteOne({ _id: id });
 };
 
 // Функція для оновлення сесії
-export const refreshUsersSession = async ({ refreshToken }) => {
-  const session = await SessionCollection.findOne({ refreshToken });
+export const refreshUsersSession = async (res) => {
+  const session = await SessionCollection.findOne({refreshToken: res.refreshToken});
 
   if (!session) {
     throw createHttpError(401, 'Session not found');
