@@ -8,6 +8,7 @@ export const getAllContacts = async (req, res) => {
 
   if (type) filter.contactType = type;
   if (isFavourite !== undefined) filter.isFavourite = isFavourite === 'true';
+  if (req.user._id) filter.userId = req.user._id;
 
   const totalItems = await ContactCollection.countDocuments(filter);
 
@@ -34,7 +35,7 @@ export const getAllContacts = async (req, res) => {
 
 export const getContactById = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await ContactCollection.findById(contactId);
+  const contact = await ContactCollection.findOne({ _id: contactId, userId: req.user._id });
 
   if (!contact) {
     throw createError(404, 'Contact not found');
@@ -48,6 +49,7 @@ export const getContactById = async (req, res) => {
 };
 
 export const createContact = async (req, res) => {
+  req.body.userId = req.user._id;
   const contact = await ContactCollection.create(req.body);
   res.status(201).json({
     status: 201,

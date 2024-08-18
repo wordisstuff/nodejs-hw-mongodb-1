@@ -29,8 +29,6 @@ const contactSchema = new Schema(
       ref: 'User',
       required: true
     },
-    createdAt:{Date},
-    updatedAt :{Date},
   },
   {
     timestamps: true,
