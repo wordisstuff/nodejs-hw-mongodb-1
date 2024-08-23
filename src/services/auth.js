@@ -2,6 +2,8 @@ import { UserCollection } from "../models/user.js";
 import { SessionCollection } from '../models/session.js';
 import { randomBytes } from 'crypto';
 import createHttpError from 'http-errors';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 // Константи для часу життя токенів
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
@@ -59,3 +61,34 @@ export const refreshUsersSession = async (res) => {
 
   return newSession;
 };
+
+//Функція для скидання паролю
+export async function resetPassword(password, token) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    console.log(decoded);
+
+    const user = await UserCollection.findOne({ _id: decoded.sub, email: decoded.email });
+
+    if (user === null) {
+      throw createHttpError(404, 'User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 120);
+
+    await UserCollection.findOneAndUpdate(
+      { _id: user._id },
+      { password: hashedPassword },
+    );
+  } catch (error) {
+    if (
+      error.name === 'TokenExpiredError' ||
+      error.name === 'JsonWebTokenError'
+    ) {
+      throw createHttpError(401, 'Token error');
+    }
+
+    throw error;
+  }
+}

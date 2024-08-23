@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 
 import {UserCollection} from '../models/user.js';
 // import {SessionCollection} from "../models/session.js";
-import { createSession, deleteSessionById, refreshUsersSession } from '../services/auth.js';
+import { createSession, deleteSessionById, refreshUsersSession, resetPassword } from '../services/auth.js';
 
 
 // Контролер для реєстрації
@@ -144,3 +144,17 @@ export const logout = async (req, res, next) => {
     next(error);
   }
 };
+
+
+//Контроллер для скидання паролю
+export async function resetPasswordController(req, res) {
+  const { password, token } = req.body;
+
+  await resetPassword(password, token);
+
+  res.send({
+    status: 200,
+    message: 'Password reset successfully',
+    data: {},
+  });
+}
