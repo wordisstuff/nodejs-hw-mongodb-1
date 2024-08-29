@@ -3,7 +3,13 @@ import createHttpError from 'http-errors';
 
 import {UserCollection} from '../models/user.js';
 // import {SessionCollection} from "../models/session.js";
-import { createSession, deleteSessionById, refreshUsersSession, resetPassword } from '../services/auth.js';
+import {
+  createSession,
+  deleteSessionById,
+  refreshUsersSession,
+  requestResetEmail,
+  resetPassword
+} from '../services/auth.js';
 
 
 // Контролер для реєстрації
@@ -145,6 +151,20 @@ export const logout = async (req, res, next) => {
   }
 };
 
+
+//Контроллер для скидання пошти
+
+export async function requestResetEmailController(req, res) {
+  const { email } = req.body;
+
+  await requestResetEmail(email);
+
+  res.send({
+    status: 200,
+    message: 'Reset email was send successfully',
+    data: {},
+  });
+}
 
 //Контроллер для скидання паролю
 export async function resetPasswordController(req, res) {

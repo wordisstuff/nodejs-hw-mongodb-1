@@ -5,6 +5,14 @@ import createHttpError from 'http-errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+import fs from 'node:fs';
+import path from 'node:path';
+
+import handlebars from 'handlebars';
+import { sendMail } from "../utils/sendEmail.js";
+import { SMTP } from "../constants/index.js";
+
+
 // Константи для часу життя токенів
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 const ONE_DAY = 24 * 60 * 60 * 1000;
@@ -90,5 +98,42 @@ export async function resetPassword(password, token) {
     }
 
     throw error;
+  }
+}
+
+// Функція для скидання пошти
+export async function requestResetEmail(email) {
+  const user = await UserCollection.findOne({ email });
+
+  if (user === null) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const resetToken = jwt.sign(
+    {
+      sub: user._id,
+      email: user.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' },
+  );
+
+  const templateSource = fs.readFileSync(
+    path.resolve('src/templates/reset-password.hbs'),
+    { encoding: 'UTF-8' },
+  );
+  const template = handlebars.compile(templateSource);
+
+  const html = template({ name: user.name, resetToken });
+
+  try {
+    await sendMail({
+      from: SMTP.FROM_EMAIL,
+      to: email,
+      subject: 'Reset your password',
+      html,
+    });
+  } catch {
+    throw createHttpError(500, 'Cannot send email');
   }
 }
