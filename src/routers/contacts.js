@@ -12,7 +12,7 @@ import { validateBody } from '../middlewares/validateBody.js';
 import { isValidId } from '../middlewares/isValidId.js';
 import { contactSchema, updateContactSchema } from '../validation/contactSchemas.js';
 import { authenticate } from '../middlewares/authenticate.js';
-import { upload } from '../middlewares/upload.js';
+import { upload } from '../../src/middlewares/upload.js';
 
 
 const router = express.Router();
