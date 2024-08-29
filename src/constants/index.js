@@ -7,9 +7,20 @@ export const SORT_ORDER = {
   export const REFRESH_TOKEN_TTL = 24 * 60 * 60 * 1000; // 1 day in milliseconds;
 
   export const SMTP = {
-    SERVER: process.env.SMTP_SERVER,
+    HOST: process.env.SMTP_HOST,
     PORT: process.env.SMTP_PORT,
     USER: process.env.SMTP_USER,
     PASSWORD: process.env.SMTP_PASSWORD,
     FROM_EMAIL: process.env.SMTP_FROM_EMAIL,
+  };
+
+  export const TPS = {
+    DOMAIN: process.env.APP_DOMAIN,
+  };
+
+  export const CLOUDINARY = {
+    NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    KEY: process.env.CLOUDINARY_API_KEY,
+    SECRET: process.env.CLOUDINARY_API_SECRET,
+    EMALABLE: process.env.ENABLE_CLOUDINARY,
   };
