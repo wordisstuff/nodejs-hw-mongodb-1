@@ -10,7 +10,6 @@ import path from 'node:path';
 
 import handlebars from 'handlebars';
 import { sendMail } from "../utils/sendEmail.js";
-import { SMTP } from "../constants/index.js";
 
 
 // Константи для часу життя токенів
@@ -128,12 +127,13 @@ export async function requestResetEmail(email) {
 
   try {
     await sendMail({
-      from: SMTP.FROM_EMAIL,
+      from: process.env.SMTP_FROM_EMAIL,
       to: email,
       subject: 'Reset your password',
       html,
     });
-  } catch {
+  } catch (e) {
+    console.log(e);
     throw createHttpError(500, 'Cannot send email');
   }
 }

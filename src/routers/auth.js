@@ -1,7 +1,7 @@
 import express from 'express';
-import { login, register, refreshSession, logout, resetPasswordController } from '../controllers/auth.js';
+import { login, register, refreshSession, logout, resetPasswordController, requestResetEmailController } from '../controllers/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
-import { registerSchema, loginUserSchema, resetPasswordSchema } from '../validation/auth.js';
+import { registerSchema, loginUserSchema, resetPasswordSchema, requestResetEmailSchema } from '../validation/auth.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router.post('/refresh', refreshSession);
 // Реєстрація маршруту для логауту
 router.post('/logout', logout);
 //Маршрут для скидання паролю
-router.post('/send-reset-email', jsonParser, validateBody(resetPasswordSchema), ctrlWrapper(resetPasswordController));
+router.post('/send-reset-email', jsonParser, validateBody(requestResetEmailSchema), ctrlWrapper(requestResetEmailController));
 router.post('/reset-password', jsonParser, validateBody(resetPasswordSchema), ctrlWrapper(resetPasswordController));
 
 export default router;
