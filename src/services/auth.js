@@ -1,16 +1,16 @@
-import { UserCollection } from "../models/user.js";
+import { UserCollection } from '../models/user.js';
 import { SessionCollection } from '../models/session.js';
 import { randomBytes } from 'crypto';
 import createHttpError from 'http-errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import fs from 'node:fs';
-import path from 'node:path';
+// import fs from 'node:fs/promises';
+// import path from 'node:path';
 
-import handlebars from 'handlebars';
-import { sendMail } from "../utils/sendEmail.js";
-
+// import handlebars from 'handlebars';
+import { sendMail } from '../utils/sendEmail.js';
+import templateMaker from '../utils/templateMaker.js';
 
 // Константи для часу життя токенів
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
@@ -49,7 +49,9 @@ export const deleteSessionById = async (id) => {
 
 // Функція для оновлення сесії
 export const refreshUsersSession = async (res) => {
-  const session = await SessionCollection.findOne({refreshToken: res.refreshToken});
+  const session = await SessionCollection.findOne({
+    refreshToken: res.refreshToken,
+  });
 
   if (!session) {
     throw createHttpError(401, 'Session not found');
@@ -76,7 +78,10 @@ export async function resetPassword(password, token) {
 
     console.log(decoded);
 
-    const user = await UserCollection.findOne({ _id: decoded.sub, email: decoded.email });
+    const user = await UserCollection.findOne({
+      _id: decoded.sub,
+      email: decoded.email,
+    });
 
     if (user === null) {
       throw createHttpError(404, 'User not found');
@@ -117,23 +122,37 @@ export async function requestResetEmail(email) {
     { expiresIn: '15m' },
   );
 
-  const templateSource = fs.readFileSync(
-    path.resolve('src/templates/reset-password.hbs'),
-    { encoding: 'UTF-8' },
-  );
-  const template = handlebars.compile(templateSource);
+  // const templateSource = await fs.readFile(
+  //   path.resolve('./src/templates/reset-password.hbs'),
+  // );
+  // console.log('TEMPLATE', templateSource);
+  // const template = handlebars.compile(templateSource.toString(), {
+  //   encoding: 'UTF-8',
+  // });
 
-  const html = template({ name: user.name, resetToken });
+  // const html = template({ name: user.name, resetToken });
+  // console.log('HTML', html);
 
-  try {
-    await sendMail({
-      from: process.env.SMTP_FROM_EMAIL,
-      to: email,
-      subject: 'Reset your password',
-      html,
-    });
-  } catch (e) {
-    console.log(e);
-    throw createHttpError(500, 'Cannot send email');
-  }
+  const html = templateMaker({
+    name: user.name,
+    link: `${process.env.APP_DOMAIN}${process.env.PORT}/reset-pwd?token=${resetToken}`,
+  });
+
+  await sendMail({
+    from: process.env.SMTP_FROM_EMAIL,
+    to: email,
+    subject: 'Reset your password',
+    html,
+  });
+  // try {
+  //   await sendMail({
+  //     from: process.env.SMTP_FROM_EMAIL,
+  //     to: email,
+  //     subject: 'Reset your password',
+  //     html,
+  //   });
+  // } catch (e) {
+  //   console.log(e);
+  //   throw createHttpError(500, 'Cannot send email!!!');
+  // }
 }

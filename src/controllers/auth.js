@@ -1,16 +1,15 @@
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 
-import {UserCollection} from '../models/user.js';
+import { UserCollection } from '../models/user.js';
 // import {SessionCollection} from "../models/session.js";
 import {
   createSession,
   deleteSessionById,
   refreshUsersSession,
   requestResetEmail,
-  resetPassword
+  resetPassword,
 } from '../services/auth.js';
-
 
 // Контролер для реєстрації
 export const register = async (req, res, next) => {
@@ -27,7 +26,11 @@ export const register = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Створення нового користувача
-    const newUser = await UserCollection.create({ name, email, password: hashedPassword });
+    const newUser = await UserCollection.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
 
     // Видалення пароля з відповіді
     const userResponse = {
@@ -106,7 +109,7 @@ export const refreshSession = async (req, res, next) => {
     }
 
     // Оновлення сесії користувача на основі рефреш токену
-    const newSession = await refreshUsersSession( req.cookies );
+    const newSession = await refreshUsersSession(req.cookies);
 
     res.cookie('refreshToken', newSession.refreshToken, {
       httpOnly: true,
@@ -151,12 +154,12 @@ export const logout = async (req, res, next) => {
   }
 };
 
-
 //Контроллер для скидання пошти
 
 export async function requestResetEmailController(req, res) {
+  console.log('YATUT ');
   const { email } = req.body;
-
+  console.log('EMAIL', email);
   await requestResetEmail(email);
 
   res.send({
