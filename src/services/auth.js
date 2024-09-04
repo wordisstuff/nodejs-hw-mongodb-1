@@ -5,7 +5,7 @@ import createHttpError from 'http-errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import handlebars from 'handlebars';
@@ -117,11 +117,11 @@ export async function requestResetEmail(email) {
     { expiresIn: '15m' },
   );
 
-  const templateSource = fs.readFileSync(
+  const templateSource = await fs.readFile(
     path.resolve('src/templates/reset-password.hbs'),
-    { encoding: 'UTF-8' },
   );
-  const template = handlebars.compile(templateSource);
+  const template = handlebars.compile(templateSource.toString(),
+    { encoding: 'UTF-8' );
 
   const html = template({ name: user.name, resetToken });
 
